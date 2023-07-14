@@ -52,6 +52,19 @@ b0.place(x=size_canvas_x+20, y=30)
 b1 = Button(tk, text="Restart", command=button_restart)
 b1.place(x=size_canvas_x+20, y=70)
 
+def add_to_all(event):
+    _type = 0
+    if event.num == 3:
+        _type = 1
+    mouse_x = canvas.winfo_pointerx() - canvas.winfo_rootx()
+    mouse_y = canvas.winfo_pointery() - canvas.winfo_rooty()
+    ip_X = mouse_x // step_x
+    ip_y = mouse_y // step_y
+    print(ip_X, ip_y, "_type", _type)
+
+canvas.bind_all("<Button-1>", add_to_all)
+canvas.bind_all("<Button-3>", add_to_all)
+
 while app_running:
     if app_running:
         tk.update_idletasks()
