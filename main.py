@@ -11,6 +11,7 @@ s_x = s_y = 10  # Field size
 step_x = size_canvas_x // s_x
 step_y = size_canvas_y // s_y
 
+
 def on_closing():
     global app_running
     if messagebox.askokcancel("Exit", "Do you want to exit?"):
@@ -29,7 +30,7 @@ tk.update()
 
 
 def draw_table():
-    for i in range(0, s_x+1):
+    for i in range(0, s_x + 1):
         canvas.create_line(step_x * i, 0, step_x * i, size_canvas_y)
     for i in range(0, s_y + 1):
         canvas.create_line(0, step_y * i, size_canvas_x, step_y * i)
