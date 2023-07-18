@@ -60,7 +60,10 @@ def button_show_enemy():
 
 def button_restart():
     global list_ids
+    for el in list_ids:
+        canvas.delete(el)
     list_ids = []
+    generate_enemy_ships()
 
 
 b0 = Button(tk, text="Show enemy ship", command=button_show_enemy)
@@ -158,7 +161,7 @@ def generate_enemy_ships():
 
         #print(sum_1_enemy)
         #print(ships_list)
-        print(enemy_ships)
+        #print(enemy_ships)
 
 
 
