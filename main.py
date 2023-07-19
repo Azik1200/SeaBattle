@@ -167,7 +167,7 @@ def draw_point2(x, y, offset_x=size_canvas_x + menu_x):
         list_ids.append(id2)
 
 
-def check_winner(x, y):
+def check_winner1(x, y):
     win = False
     if enemy_ships1[y][x] > 0:
         boom[y][x] = enemy_ships1[y][x]
@@ -177,8 +177,19 @@ def check_winner(x, y):
         win = True
     return win
 
+def check_winner2(x, y):
+    win = False
+    if enemy_ships2[y][x] > 0:
+        boom[y][x] = enemy_ships2[y][x]
+    sum_enemy_ships = sum(sum(i) for i in zip(*enemy_ships2))
+    sum_boom = sum(sum(i) for i in zip(*boom))
+    if sum_enemy_ships == sum_boom:
+        win = True
+    return win
+
 
 def add_to_all(event):
+    flag = True
     global points1, points2
     _type = 0
     if event.num == 3:
@@ -187,24 +198,24 @@ def add_to_all(event):
     mouse_y = canvas.winfo_pointery() - canvas.winfo_rooty()
     ip_X = mouse_x // step_x
     ip_Y = mouse_y // step_y
-    # print(ip_X, ip_y, "_type", _type)
     if ip_X < s_x and ip_Y < s_y:
         if points1[ip_Y][ip_X] == -1:
             points1[ip_Y][ip_X] = _type
             draw_point1(ip_X, ip_Y)
-            if check_winner(ip_X, ip_Y):
-                print("!!!WINNER!!!")
+            if check_winner1(ip_X, ip_Y):
+                print("!!!GAMER1 WIN!!!")
                 points1 = [[0 for i in range(s_x)] for i in range(s_y)]
+                points2 = [[0 for i in range(s_x)] for i in range(s_y)]
                 show_enemy1()
     elif s_x + delta_menu_x <= ip_X < s_x + s_x + delta_menu_x and ip_Y < s_y:
-        print("Ok")
         if points2[ip_Y][ip_X - s_x - delta_menu_x] == -1:
             points2[ip_Y][ip_X - s_x - delta_menu_x] = _type
             draw_point2(ip_X - s_x - delta_menu_x, ip_Y)
-            # if check_winner(ip_X, ip_Y):
-            #     print("!!!WINNER!!!")
-            #     points2 = [[0 for i in range(s_x)] for i in range(s_y)]
-            #     show_enemy1()
+            if check_winner2(ip_X - s_x - delta_menu_x, ip_Y):
+                print("!!!GAMER2 WIN!!!")
+                points1 = [[0 for i in range(s_x)] for i in range(s_y)]
+                points2 = [[0 for i in range(s_x)] for i in range(s_y)]
+                show_enemy2()
 
 
 canvas.bind_all("<Button-1>", add_to_all)
