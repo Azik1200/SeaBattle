@@ -32,6 +32,8 @@ boom = [[0 for i in range(s_x)] for i in range(s_y)]
 
 ships_list = []
 
+flag = True
+
 
 def on_closing():
     global app_running
@@ -65,6 +67,7 @@ draw_table(size_canvas_x + menu_x)
 
 t0 = Label(tk, text="Gamer №1", font=("Helvetica", 16))
 t0.place(x=size_canvas_x // 2 - t0.winfo_reqwidth() // 2, y=size_canvas_y + 3)
+
 t1 = Label(tk, text="Gamer №2", font=("Helvetica", 16))
 t1.place(x=size_canvas_x + menu_x + size_canvas_x // 2 - t0.winfo_reqwidth() // 2, y=size_canvas_y + 3)
 
@@ -187,10 +190,10 @@ def check_winner2(x, y):
         win = True
     return win
 
+t0.configure(bg="red")
 
 def add_to_all(event):
-    flag = True
-    global points1, points2
+    global points1, points2, flag
     _type = 0
     if event.num == 3:
         _type = 1
@@ -198,7 +201,11 @@ def add_to_all(event):
     mouse_y = canvas.winfo_pointery() - canvas.winfo_rooty()
     ip_X = mouse_x // step_x
     ip_Y = mouse_y // step_y
-    if ip_X < s_x and ip_Y < s_y:
+
+    if ip_X < s_x and ip_Y < s_y and flag:
+        flag = False
+        t0.configure(bg="#f0f0f0")
+        t1.configure(bg="red")
         if points1[ip_Y][ip_X] == -1:
             points1[ip_Y][ip_X] = _type
             draw_point1(ip_X, ip_Y)
@@ -207,7 +214,10 @@ def add_to_all(event):
                 points1 = [[0 for i in range(s_x)] for i in range(s_y)]
                 points2 = [[0 for i in range(s_x)] for i in range(s_y)]
                 show_enemy1()
-    elif s_x + delta_menu_x <= ip_X < s_x + s_x + delta_menu_x and ip_Y < s_y:
+    if s_x + delta_menu_x <= ip_X < s_x + s_x + delta_menu_x and ip_Y < s_y and not flag:
+        flag = True
+        t1.configure(bg="#f0f0f0")
+        t0.configure(bg="red")
         if points2[ip_Y][ip_X - s_x - delta_menu_x] == -1:
             points2[ip_Y][ip_X - s_x - delta_menu_x] = _type
             draw_point2(ip_X - s_x - delta_menu_x, ip_Y)
