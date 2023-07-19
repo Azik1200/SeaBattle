@@ -14,18 +14,23 @@ step_y = size_canvas_y // s_y
 size_canvas_x = step_x * s_x
 size_canvas_y = step_y * s_y
 
-menu_x = step_x * 4  # 250
+delta_menu_x = 4
+menu_x = step_x * delta_menu_x  # 250
 menu_y = 40
 
 ships = s_x // 2
 ship_len1 = s_x // 5
 ship_len2 = s_x // 3
 ship_len3 = s_x // 2
-enemy_ships = [[0 for i in range(s_x + 1)] for i in range(s_y + 1)]
+enemy_ships1 = [[0 for i in range(s_x + 1)] for i in range(s_y + 1)]
+enemy_ships2 = [[0 for i in range(s_x + 1)] for i in range(s_y + 1)]
 list_ids = []
-points = [[-1 for i in range(s_x)] for i in range(s_y)]
+points1 = [[-1 for i in range(s_x)] for i in range(s_y)]
+points2 = [[-1 for i in range(s_x)] for i in range(s_y)]
 
 boom = [[0 for i in range(s_x)] for i in range(s_y)]
+
+ships_list = []
 
 
 def on_closing():
@@ -63,44 +68,72 @@ t0.place(x=size_canvas_x // 2 - t0.winfo_reqwidth() // 2, y=size_canvas_y + 3)
 t1 = Label(tk, text="Gamer №2", font=("Helvetica", 16))
 t1.place(x=size_canvas_x + menu_x + size_canvas_x // 2 - t0.winfo_reqwidth() // 2, y=size_canvas_y + 3)
 
-def button_show_enemy():
-    show_enemy()
+
+def button_show_enemy1():
+    show_enemy1()
 
 
-def show_enemy():
-    global points
+def button_show_enemy2():
+    show_enemy2()
+
+
+def show_enemy1():
+    global points1
     for i in range(0, s_x):
         for j in range(0, s_y):
-            if enemy_ships[j][i] > 0:
+            if enemy_ships1[j][i] > 0:
                 color = "red"
-                if points[j][i] != -1:
+                if points1[j][i] != -1:
                     color = "green"
                 _id = canvas.create_rectangle(i * step_x, j * step_y, i * step_x + step_x, j * step_y + step_y,
                                               fill=color)
                 list_ids.append(_id)
-    points = [[0 for i in range(s_x)] for i in range(s_y)]
+    points1 = [[0 for i in range(s_x)] for i in range(s_y)]
+
+
+def show_enemy2():
+    global points2
+    for i in range(0, s_x):
+        for j in range(0, s_y):
+            if enemy_ships2[j][i] > 0:
+                color = "red"
+                if points2[j][i] != -1:
+                    color = "green"
+                _id = canvas.create_rectangle(size_canvas_x + menu_x + i * step_x, j * step_y,
+                                              size_canvas_x + menu_x + i * step_x + step_x, j * step_y + step_y,
+                                              fill=color)
+                list_ids.append(_id)
+    points2 = [[0 for i in range(s_x)] for i in range(s_y)]
 
 
 def button_restart():
     global list_ids
-    global points
+    global points1, points2
     global boom
+    global enemy_ships1, enemy_ships2
+    generate_ship_list()
     for el in list_ids:
         canvas.delete(el)
     list_ids = []
-    generate_enemy_ships()
-    points = [[-1 for i in range(s_x)] for i in range(s_y)]
+    enemy_ships1 = generate_enemy_ships()
+    enemy_ships2 = generate_enemy_ships()
+    points1 = [[-1 for i in range(s_x)] for i in range(s_y)]
+    points2 = [[-1 for i in range(s_x)] for i in range(s_y)]
     boom = [[0 for i in range(s_x)] for i in range(s_y)]
 
 
-b0 = Button(tk, text="Show enemy ship", command=button_show_enemy)
+b0 = Button(tk, text="Show Gamer1 ship", command=button_show_enemy1)
 b0.place(x=size_canvas_x + 20, y=30)
-b1 = Button(tk, text="Restart", command=button_restart)
-b1.place(x=size_canvas_x + 20, y=70)
+
+b1 = Button(tk, text="Show Gamer2 ship", command=button_show_enemy2)
+b1.place(x=size_canvas_x + 20, y=110)
+
+b2 = Button(tk, text="Restart", command=button_restart)
+b2.place(x=size_canvas_x + 20, y=70)
 
 
-def draw_point(x, y):
-    if enemy_ships[y][x] == 0:
+def draw_point1(x, y):
+    if enemy_ships1[y][x] == 0:
         color = "red"
         id1 = canvas.create_oval(x * step_x, y * step_y, x * step_x + step_x, y * step_y + step_y, fill=color)
         id2 = canvas.create_oval(x * step_x + step_x // 3, y * step_y + step_y // 3, x * step_x + step_x - step_x // 3,
@@ -116,12 +149,29 @@ def draw_point(x, y):
         list_ids.append(id1)
         list_ids.append(id2)
 
+def draw_point2(x, y, offset_x=size_canvas_x + menu_x):
+    if enemy_ships2[y][x] == 0:
+        color = "red"
+        id1 = canvas.create_oval(offset_x + x * step_x, y * step_y, offset_x + x * step_x + step_x, y * step_y + step_y, fill=color)
+        id2 = canvas.create_oval(offset_x + x * step_x + step_x // 3, y * step_y + step_y // 3, offset_x + x * step_x + step_x - step_x // 3,
+                                 y * step_y + step_y - step_y // 3, fill="white")
+        list_ids.append(id1)
+        list_ids.append(id2)
+    else:
+        color = "blue"
+        id1 = canvas.create_rectangle(offset_x + x * step_x, y * step_y + step_y // 2 - step_y // 10, offset_x + x * step_x + step_x,
+                                      y * step_y + step_y // 2 + step_y // 10, fill=color)
+        id2 = canvas.create_rectangle(offset_x + x * step_x + step_x // 2 - step_x // 10, y * step_y,
+                                      offset_x + x * step_x + step_x // 2 + step_x // 10, y * step_y + step_y, fill=color)
+        list_ids.append(id1)
+        list_ids.append(id2)
+
 
 def check_winner(x, y):
     win = False
-    if enemy_ships[y][x] > 0:
-        boom[y][x] = enemy_ships[y][x]
-    sum_enemy_ships = sum(sum(i) for i in zip(*enemy_ships))
+    if enemy_ships1[y][x] > 0:
+        boom[y][x] = enemy_ships1[y][x]
+    sum_enemy_ships = sum(sum(i) for i in zip(*enemy_ships1))
     sum_boom = sum(sum(i) for i in zip(*boom))
     if sum_enemy_ships == sum_boom:
         win = True
@@ -129,7 +179,7 @@ def check_winner(x, y):
 
 
 def add_to_all(event):
-    global points
+    global points1, points2
     _type = 0
     if event.num == 3:
         _type = 1
@@ -139,13 +189,22 @@ def add_to_all(event):
     ip_Y = mouse_y // step_y
     # print(ip_X, ip_y, "_type", _type)
     if ip_X < s_x and ip_Y < s_y:
-        if points[ip_Y][ip_X] == -1:
-            points[ip_Y][ip_X] = _type
-            draw_point(ip_X, ip_Y)
+        if points1[ip_Y][ip_X] == -1:
+            points1[ip_Y][ip_X] = _type
+            draw_point1(ip_X, ip_Y)
             if check_winner(ip_X, ip_Y):
                 print("!!!WINNER!!!")
-                points = [[0 for i in range(s_x)] for i in range(s_y)]
-                show_enemy()
+                points1 = [[0 for i in range(s_x)] for i in range(s_y)]
+                show_enemy1()
+    elif s_x + delta_menu_x <= ip_X < s_x + s_x + delta_menu_x and ip_Y < s_y:
+        print("Ok")
+        if points2[ip_Y][ip_X - s_x - delta_menu_x] == -1:
+            points2[ip_Y][ip_X - s_x - delta_menu_x] = _type
+            draw_point2(ip_X - s_x - delta_menu_x, ip_Y)
+            # if check_winner(ip_X, ip_Y):
+            #     print("!!!WINNER!!!")
+            #     points2 = [[0 for i in range(s_x)] for i in range(s_y)]
+            #     show_enemy1()
 
 
 canvas.bind_all("<Button-1>", add_to_all)
@@ -153,25 +212,19 @@ canvas.bind_all("<Button-3>", add_to_all)
 
 
 def generate_enemy_ships():
-    global enemy_ships
-    ships_list = []
-    # генерируем список случайных длин кораблей
-    for i in range(0, ships):
-        ships_list.append(random.choice([ship_len1, ship_len2, ship_len3]))
-    # print(ships_list)
+    global ships_list
 
-    # подсчет суммарной длины кораблей
     sum_1_all_ships = sum(ships_list)
     sum_1_enemy = 0
 
     while sum_1_enemy != sum_1_all_ships:
-        # обнуляем массив кораблей врага
+
         enemy_ships = [[0 for i in range(s_x + 1)] for i in
-                       range(s_y + 1)]  # +1 для доп. линии справа и снизу, для успешных проверок генерации противника
+                       range(s_y + 1)]
 
         for i in range(0, ships):
             len = ships_list[i]
-            horizont_vertikal = random.randrange(1, 3)  # 1- горизонтальное 2 - вертикальное
+            horizont_vertikal = random.randrange(1, 3)
 
             primerno_x = random.randrange(0, s_x)
             if primerno_x + len > s_x:
@@ -181,7 +234,6 @@ def generate_enemy_ships():
             if primerno_y + len > s_y:
                 primerno_y = primerno_y - len
 
-            # print(horizont_vertikal, primerno_x,primerno_y)
             if horizont_vertikal == 1:
                 if primerno_x + len <= s_x:
                     for j in range(0, len):
@@ -227,9 +279,20 @@ def generate_enemy_ships():
         # print(sum_1_enemy)
         # print(ships_list)
         # print(enemy_ships)
+    return enemy_ships
 
 
-generate_enemy_ships()
+def generate_ship_list():
+    global ships_list
+    ships_list = []
+    for i in range(0, ships):
+        ships_list.append(random.choice([ship_len1, ship_len2, ship_len3]))
+    return ships_list
+
+
+generate_ship_list()
+enemy_ships1 = generate_enemy_ships()
+enemy_ships2 = generate_enemy_ships()
 
 while app_running:
     if app_running:
