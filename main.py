@@ -6,15 +6,15 @@ import random
 tk = Tk()
 app_running = True
 
-size_canvas_x = 600
-size_canvas_y = 600
+size_canvas_x = 400
+size_canvas_y = 400
 s_x = s_y = 10  # Field size
 step_x = size_canvas_x // s_x
 step_y = size_canvas_y // s_y
 size_canvas_x = step_x * s_x
 size_canvas_y = step_y * s_y
 
-menu_x = 250
+menu_x = step_x * 4 #250
 
 ships = s_x // 2
 ship_len1 = s_x // 5
@@ -23,6 +23,8 @@ ship_len3 = s_x // 2
 enemy_ships = [[0 for i in range(s_x + 1)] for i in range(s_y + 1)]
 list_ids = []
 points = [[-1 for i in range(s_x)] for i in range(s_y)]
+
+boom = [[0 for i in range(s_x)] for i in range(s_y)]
 
 
 def on_closing():
@@ -36,27 +38,34 @@ tk.protocol("WM_DELETE_WINDOW", on_closing)
 tk.title("See Battle")
 tk.resizable(False, False)
 tk.wm_attributes("-topmost", 1)  # TODO Delete after ending project
-canvas = Canvas(tk, width=size_canvas_x + menu_x, height=size_canvas_y, bd=0, highlightthickness=0)
+canvas = Canvas(tk, width=size_canvas_x + menu_x + size_canvas_x, height=size_canvas_y + 10, bd=0, highlightthickness=0)
 canvas.create_rectangle(0, 0, size_canvas_x, size_canvas_y, fill="white")
+canvas.create_rectangle(size_canvas_x + menu_x, 0, size_canvas_x + menu_x + size_canvas_x, size_canvas_y,
+                        fill="lightyellow")
 canvas.pack()
 tk.update()
 
 
-def draw_table():
+def draw_table(offset_x=0):
     for i in range(0, s_x + 1):
-        canvas.create_line(step_x * i, 0, step_x * i, size_canvas_y)
+        canvas.create_line(offset_x + step_x * i, 0, offset_x + step_x * i, size_canvas_y)
     for i in range(0, s_y + 1):
-        canvas.create_line(0, step_y * i, size_canvas_x, step_y * i)
+        canvas.create_line(offset_x, step_y * i, offset_x + size_canvas_x, step_y * i)
 
 
 draw_table()
+draw_table(size_canvas_x + menu_x)
 
 
 def button_show_enemy():
+    show_enemy()
+
+
+def show_enemy():
     global points
     for i in range(0, s_x):
         for j in range(0, s_y):
-            if enemy_ships[j][i] > 0 :
+            if enemy_ships[j][i] > 0:
                 color = "red"
                 if points[j][i] != -1:
                     color = "green"
@@ -69,11 +78,13 @@ def button_show_enemy():
 def button_restart():
     global list_ids
     global points
+    global boom
     for el in list_ids:
         canvas.delete(el)
     list_ids = []
     generate_enemy_ships()
     points = [[-1 for i in range(s_x)] for i in range(s_y)]
+    boom = [[0 for i in range(s_x)] for i in range(s_y)]
 
 
 b0 = Button(tk, text="Show enemy ship", command=button_show_enemy)
@@ -99,7 +110,19 @@ def draw_point(x, y):
         list_ids.append(id2)
 
 
+def check_winner(x, y):
+    win = False
+    if enemy_ships[y][x] > 0:
+        boom[y][x] = enemy_ships[y][x]
+    sum_enemy_ships = sum(sum(i) for i in zip(*enemy_ships))
+    sum_boom = sum(sum(i) for i in zip(*boom))
+    if sum_enemy_ships == sum_boom:
+        win = True
+    return win
+
+
 def add_to_all(event):
+    global points
     _type = 0
     if event.num == 3:
         _type = 1
@@ -112,7 +135,11 @@ def add_to_all(event):
         if points[ip_Y][ip_X] == -1:
             points[ip_Y][ip_X] = _type
             draw_point(ip_X, ip_Y)
-        print(len(list_ids))
+            if check_winner(ip_X, ip_Y):
+                print("!!!WINNER!!!")
+                points = [[0 for i in range(s_x)] for i in range(s_y)]
+                show_enemy()
+
 
 
 canvas.bind_all("<Button-1>", add_to_all)
