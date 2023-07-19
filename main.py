@@ -14,7 +14,8 @@ step_y = size_canvas_y // s_y
 size_canvas_x = step_x * s_x
 size_canvas_y = step_y * s_y
 
-menu_x = step_x * 4 #250
+menu_x = step_x * 4  # 250
+menu_y = 40
 
 ships = s_x // 2
 ship_len1 = s_x // 5
@@ -38,7 +39,8 @@ tk.protocol("WM_DELETE_WINDOW", on_closing)
 tk.title("See Battle")
 tk.resizable(False, False)
 tk.wm_attributes("-topmost", 1)  # TODO Delete after ending project
-canvas = Canvas(tk, width=size_canvas_x + menu_x + size_canvas_x, height=size_canvas_y + 10, bd=0, highlightthickness=0)
+canvas = Canvas(tk, width=size_canvas_x + menu_x + size_canvas_x, height=size_canvas_y + menu_y, bd=0,
+                highlightthickness=0)
 canvas.create_rectangle(0, 0, size_canvas_x, size_canvas_y, fill="white")
 canvas.create_rectangle(size_canvas_x + menu_x, 0, size_canvas_x + menu_x + size_canvas_x, size_canvas_y,
                         fill="lightyellow")
@@ -56,6 +58,10 @@ def draw_table(offset_x=0):
 draw_table()
 draw_table(size_canvas_x + menu_x)
 
+t0 = Label(tk, text="Gamer №1", font=("Helvetica", 16))
+t0.place(x=size_canvas_x // 2 - t0.winfo_reqwidth() // 2, y=size_canvas_y + 3)
+t1 = Label(tk, text="Gamer №2", font=("Helvetica", 16))
+t1.place(x=size_canvas_x + menu_x + size_canvas_x // 2 - t0.winfo_reqwidth() // 2, y=size_canvas_y + 3)
 
 def button_show_enemy():
     show_enemy()
@@ -97,11 +103,12 @@ def draw_point(x, y):
     if enemy_ships[y][x] == 0:
         color = "red"
         id1 = canvas.create_oval(x * step_x, y * step_y, x * step_x + step_x, y * step_y + step_y, fill=color)
-        id2 = canvas.create_oval(x * step_x+step_x//3, y * step_y+step_y//3, x * step_x + step_x - step_x//3, y * step_y + step_y - step_y//3, fill="white")
+        id2 = canvas.create_oval(x * step_x + step_x // 3, y * step_y + step_y // 3, x * step_x + step_x - step_x // 3,
+                                 y * step_y + step_y - step_y // 3, fill="white")
         list_ids.append(id1)
         list_ids.append(id2)
-    else :
-        color="blue"
+    else:
+        color = "blue"
         id1 = canvas.create_rectangle(x * step_x, y * step_y + step_y // 2 - step_y // 10, x * step_x + step_x,
                                       y * step_y + step_y // 2 + step_y // 10, fill=color)
         id2 = canvas.create_rectangle(x * step_x + step_x // 2 - step_x // 10, y * step_y,
@@ -139,7 +146,6 @@ def add_to_all(event):
                 print("!!!WINNER!!!")
                 points = [[0 for i in range(s_x)] for i in range(s_y)]
                 show_enemy()
-
 
 
 canvas.bind_all("<Button-1>", add_to_all)
